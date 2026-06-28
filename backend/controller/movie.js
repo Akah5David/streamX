@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 console.log("controller directory:", __dirname);
 
 import { safeFetch } from "../util/safeFetch.js";
-import { delay } from "framer-motion";
+
 
 const headers = {
   accept: "application/json",

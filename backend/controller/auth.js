@@ -1,4 +1,4 @@
-import pool from "../util/database.js";
+import pool from "../config/db.js";
 import bcrypt from "bcrypt";
 import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
@@ -22,7 +22,7 @@ const signUp = async (req, res, next) => {
 
   const [existing] = await pool.execute(
     "SELECT email FROM users WHERE email = ?",
-    [userEmail]
+    [userEmail],
   );
 
   if (existing.length > 0) {
@@ -63,7 +63,7 @@ const login = async (req, res, next) => {
     //query the database to check if the user exists
     const [verifyUser] = await pool.execute(
       "SELECT * FROM users WHERE email = ?",
-      [userEmail]
+      [userEmail],
     );
 
     if (verifyUser.length === 0) {
@@ -75,7 +75,7 @@ const login = async (req, res, next) => {
     //compare the password
     const passwordMatch = await bcrypt.compare(
       userPassword,
-      verifyUser[0].password
+      verifyUser[0].password,
     );
 
     if (!passwordMatch) {
@@ -88,7 +88,7 @@ const login = async (req, res, next) => {
     const token = jwt.sign(
       { email: userEmail, id: verifyUser[0].id },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     res.cookies("accessToken", token, {

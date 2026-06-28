@@ -77,7 +77,9 @@ const fetchViaIPv4 = async (url, options = {}, timeoutMs = 30000) => {
     }
   }
 
-  throw lastError || new Error("IPv4 fallback failed: no resolved IPv4 address");
+  throw (
+    lastError || new Error("IPv4 fallback failed: no resolved IPv4 address")
+  );
 };
 
 export const safeFetch = async (

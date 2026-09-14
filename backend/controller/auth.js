@@ -1,82 +1,115 @@
 import pool from "../config/db.js";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { validationResult } from "express-validator";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { sendConfirmationEmail } from "../util/send-email-notification.js";
+import { saveVerificationToken } from "../model/verificationToken.js";
 
 dotenv.config();
 
 const signUp = async (req, res, next) => {
-  //checking what result the validation to signup route gave us.
   const errors = validationResult(req);
-  console.log("Validation errors:", errors);
 
   if (!errors.isEmpty()) {
     const error = new Error("Validation failed");
-  }
-
-  const userName = req.body.userName;
-  const userPassword = req.body.userPassword;
-  const userEmail = req.body.userEmail;
-  const saltRounds = 10;
-
-  const [existing] = await pool.execute(
-    "SELECT email FROM users WHERE email = ?",
-    [userEmail],
-  );
-
-  if (existing.length > 0) {
-    const error = new Error("User already exists with this email");
     error.status = 422;
     return next(error);
   }
 
-  const salt = await bcrypt.genSalt(saltRounds);
-  const hashedPassword = await bcrypt.hash(userPassword, salt);
-
-  const values = [userName, userEmail, hashedPassword];
-  const sql = `INSERT INTO users (username, email, password) VALUES (?, ?, ?)`;
+  const username = req.body.userName;
+  const password = req.body.userPassword;
+  const email = req.body.userEmail;
 
   try {
-    //query the database to add the user
-    const [result] = await pool.execute(sql, values);
-    console.log("User registered values:", result);
+    // Check if user already exists
+    const existing = await pool.query(
+      "SELECT email FROM users WHERE email = $1",
+      [email]
+    );
+
+    if (existing.rows.length > 0) {
+      const error = new Error(
+        "User already exists with this email"
+      );
+      error.status = 422;
+      return next(error);
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create user
+    const result = await pool.query(
+      `
+      INSERT INTO users (username, email, password)
+      VALUES ($1, $2, $3)
+      RETURNING *
+      `,
+      [username, email, hashedPassword]
+    );
+
+    const user = result.rows[0];
+
+    // Generate verification token
+    const verificationToken = crypto
+      .randomBytes(32)
+      .toString("hex");
+
+    // Save verification token
+    await saveVerificationToken({
+      userId: user.id,
+      token: verificationToken,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
+
+    // Send confirmation email
+    await sendConfirmationEmail(
+      email,
+      username,
+      verificationToken
+    );
 
     res.status(201).json({
       message: "User registered successfully",
-      singUpUser: { id: result.insertId.toString(), userName, userEmail },
+      signUpUser: {
+        id: user.id.toString(),
+        username,
+        email,
+      },
     });
+
   } catch (err) {
+    console.error("Signup error:", err);
+
     const error = new Error("Database query error");
     error.status = 500;
     error.data = err.message;
+
     return next(error);
   }
 };
 
 const login = async (req, res, next) => {
   try {
-    //login logic here
-    const userEmail = req.body.userEmail;
-    const userPassword = req.body.userPassword;
+    const email = req.body.userEmail;
+    const password = req.body.userPassword;
 
-    //query the database to check if the user exists
-    const [verifyUser] = await pool.execute(
-      "SELECT * FROM users WHERE email = ?",
-      [userEmail],
-    );
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
 
-    if (verifyUser.length === 0) {
+    if (result.rows.length === 0) {
       const error = new Error("User not found with this email");
       error.status = 401;
       return next(error);
     }
 
-    //compare the password
-    const passwordMatch = await bcrypt.compare(
-      userPassword,
-      verifyUser[0].password,
-    );
+    const user = result.rows[0];
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
       const error = new Error("Invalid password");
@@ -84,24 +117,28 @@ const login = async (req, res, next) => {
       return next(error);
     }
 
-    //generate JWT token
     const token = jwt.sign(
-      { email: userEmail, id: verifyUser[0].id },
+      {
+        email: user.email,
+        id: user.id,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1h" },
     );
 
-    res.cookies("accessToken", token, {
+    res.cookie("accessToken", token, {
       httpOnly: true,
-      secure: false, // true only on HTTPS
+      secure: false,
       sameSite: "lax",
     });
+
     res.status(200).json({
       message: "Login successful",
     });
-  } catch (err) {}
+  } catch (err) {
+    console.error("login error:", err);
+    return next(err);
+  }
 };
 
-const auth = { signUp, login };
-
-export default auth;
+export default { signUp, login };

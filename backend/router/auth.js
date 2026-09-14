@@ -6,11 +6,11 @@ const router = express.Router();
 router.post(
   "/signup",
   [
-    body("username")
+    body("userName")
       .notEmpty({ ignore_white: true })
       .withMessage("Username is required"),
   ],
-  auth.signUp
+  auth.signUp,
 );
 
 router.post(
@@ -27,7 +27,7 @@ router.post(
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long"),
   ],
-  auth.login
+  auth.login,
 );
 
 export default router;

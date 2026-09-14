@@ -4,7 +4,7 @@ export async function homePage() {
   console.log("API URL:", API_BASE);
 
   try {
-    const response = await fetch(`${API_BASE}/api/home`);
+    const response = await fetch(`/api/home`); //remeber to put back
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
@@ -63,7 +63,7 @@ const movies = async ({ params }) => {
   const dynamicUrl = params.id ? `${params.genre}/${params.id}` : params.genre;
 
   console.log("dynamicUrl: ", dynamicUrl);
-  const res = await fetch(`${API_BASE}/api/movie/${dynamicUrl}`);
+  const res = await fetch(`/api/movie/${dynamicUrl}`);
 
   if (!res.ok) {
     throw new Error("Unable to fetch the data");
@@ -80,7 +80,7 @@ const tvGenres = async ({ params }) => {
   const dynamicRoute = id ? `${genre}/${id}` : genre;
 
   console.log("dynamicRoute", dynamicRoute);
-  const res = await fetch(`${API_BASE}/api/tv/${dynamicRoute}`);
+  const res = await fetch(`/api/tv/${dynamicRoute}`);
 
   if (!res.ok) {
     throw new Error("Unable to fetch the data");
@@ -93,7 +93,7 @@ const tvGenres = async ({ params }) => {
 
 const nowPlaying = async ({ params }) => {
   console.log("Params: ", params.id);
-  const res = await fetch(`${API_BASE}/api/nowPlaying/${params.id}`);
+  const res = await fetch(`/api/nowPlaying/${params.id}`);
 
   if (!res.ok) {
     throw new Error("Unable to fetch the data");
@@ -110,7 +110,7 @@ const nowPlaying = async ({ params }) => {
 //*Top Rated
 const topRated = async ({ params }) => {
   console.log("Params: ", params.id);
-  const res = await fetch(`${API_BASE}/api/topRated/${params.id}`);
+  const res = await fetch(`/api/topRated/${params.id}`);
 
   if (!res.ok) {
     throw new Error("Unable to fetch the data");
@@ -127,7 +127,7 @@ const topRated = async ({ params }) => {
 //*UpComing
 const upComing = async ({ params }) => {
   console.log("Params: ", params.id);
-  const res = await fetch(`${API_BASE}/api/upComing/${params.id}`);
+  const res = await fetch(`/api/upComing/${params.id}`);
 
   if (!res.ok) {
     throw new Error("Unable to fetch the data");
@@ -144,7 +144,7 @@ const upComing = async ({ params }) => {
 //*Popular
 const popular = async ({ params }) => {
   console.log("Params: ", params.id);
-  const res = await fetch(`${API_BASE}/api/popular/${params.id}`);
+  const res = await fetch(`/api/popular/${params.id}`);
 
   if (!res.ok) {
     throw new Error("Unable to fetch the data");
@@ -176,3 +176,6 @@ export default ComponentLoaders;
 //when u use throw Response useRouteError will return Response object then use resObject.json() to convert to  javascript object
 
 //when u use throw Error useRouteError will return javascript error object  then u can access the message property of the error.
+
+
+

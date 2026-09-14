@@ -11,10 +11,7 @@ export default function PremiumSubscribePage() {
   console.log(" Subscribe QuestionDatas", questionsData);
   return (
     <>
-      <div className="bg-black">
-        <NavBar LoadersData={LoadersData} />
-      </div>
-      <main className="w-screen h-auto bg-black ">
+      <main className="w-screen pt-25 h-auto bg-black">
         <section className="relative grid grid-cols-10 grid-rows-1 py-[5em] gap-15 w-full">
           <div className=" col-span-5 flex flex-col gap-17 pb-[4em] pl-[2em] rounded-3xl ">
             <div className="flex flex-col gap-5">

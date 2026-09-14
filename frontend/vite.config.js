@@ -6,11 +6,22 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    host: "0.0.0.0",
+    host: "0.0.0.0", // allows every machine to connect to it
     port: 5173,
+    allowedHosts: true,
     hmr: {
       protocol: "ws",
-      host: "localhost", // or your machine's IP if accessed from outside
+    },
+    proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/ws": {
+        target: "ws://localhost:3000",
+        ws: true,
+      },
     },
   },
 });

@@ -20,82 +20,100 @@ import ScrollToTop from "./components/ScrollToTop";
 import PremiumSubscribePage from "./pages/PremiumSub";
 // import ViewVideoPage from "./pages/ViewVideoPage";
 import LoadingFallback from "./pages/LoadingFallback";
+import LoginPage from "./pages/LoginPage";
+LoginPage;
 
+import { authAction } from "./api/action";
 // import { HomePage } from "./api/loader";
 
 function App() {
-  console.log("Component Loaders: ", ComponentLoaders)
-  const { homePage, movies, tvGenres, nowPlaying, topRated, upComing, popular } =
-    ComponentLoaders;
-
-
+  console.log("Component Loaders: ", ComponentLoaders);
+  const {
+    homePage,
+    movies,
+    tvGenres,
+    nowPlaying,
+    topRated,
+    upComing,
+    popular,
+  } = ComponentLoaders;
 
   const router = createBrowserRouter([
     {
       path: "/",
       element: <Root />,
-      HydrateFallback: LoadingFallback,
       loader: homePage,
+      HydrateFallback: LoadingFallback,
+
       children: [
         {
           index: true,
           element: <MainPage />,
-          HydrateFallback: LoadingFallback,
-          // loader: nowPlaying
         },
-      ],
-    },
-    {
-      path: "/movie/:genre",
-      element: <MoviesPage />,
-      loader: movies,
-      HydrateFallback: LoadingFallback,
-      children: [
+
         {
-          path: ":id",
+          path: "movie/:genre",
           element: <MoviesPage />,
           loader: movies,
-          HydrateFallback: LoadingFallback,
         },
-      ],
-    },
-    {
-      path: "/tv/:genre",
-      element: <TvPage />,
-      loader: tvGenres,
-      HydrateFallback: LoadingFallback,
-      children: [
+
         {
-          path: ":id",
+          path: "movie/:genre/:id",
+          element: <MovieDetailPage />,
+          loader: movies,
+        },
+
+        {
+          path: "tv/:genre",
           element: <TvPage />,
           loader: tvGenres,
-          HydrateFallback: LoadingFallback,
+        },
+
+        {
+          path: "tv/:genre/:id",
+          element: <TvPage />,
+          loader: tvGenres,
+        },
+
+        {
+          path: "nowPlaying/:id",
+          element: <NowPlayingPage />,
+          loader: nowPlaying,
+        },
+
+        {
+          path: "top_rated/:id",
+          element: <TopRatedPage />,
+          loader: topRated,
+        },
+
+        {
+          path: "upcoming/:id",
+          element: <UpComingPage />,
+          loader: upComing,
+        },
+
+        {
+          path: "popular/:id",
+          element: <PopularPage />,
+          loader: popular,
+        },
+        {
+          path: "subscribe",
+          element: <SubscribePage />,
+          loader: homePage,
+        },
+        {
+          path: "/subscribe/premium",
+          element: <PremiumSubscribePage />,
+          loader: homePage,
+        },
+        {
+          path: "auth/:authType",
+          element: <LoginPage />,
+          action: authAction,
         },
       ],
-    },
-    {
-      path: "/nowPlaying/:id",
-      element: <NowPlayingPage />,
-      loader: nowPlaying,
-      HydrateFallback: LoadingFallback,
-    },
-    {
-      path: "/top_rated/:id",
-      element: <TopRatedPage />,
-      loader: topRated,
-      HydrateFallback: LoadingFallback,
-    },
-    {
-      path: "/upcoming/:id",
-      element: <UpComingPage />,
-      loader: upComing,
-      HydrateFallback: LoadingFallback,
-    },
-    {
-      path: "/popular/:id",
-      element: <PopularPage />,
-      loader: popular,
-      HydrateFallback: LoadingFallback,
     },
   ]);
 

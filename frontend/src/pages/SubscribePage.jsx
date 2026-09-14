@@ -11,10 +11,7 @@ export default function SubscribePage() {
   console.log(" Subscribe QuestionDatas", questionsData);
   return (
     <>
-      <div className="bg-black">
-        <NavBar LoadersData={LoadersData} />
-      </div>
-      <main className="w-screen h-auto bg-black ">
+      <main className="w-screen pt-25 h-auto bg-[black] ">
         <section className="w-full bg-black mb-[50px] py-[100px] pr-[4em] grid grid-cols-2 grid-rows-1 ">
           <div className="  px-[4em] col-start-1 flex flex-col items-center gap-10">
             <div className="flex flex-col gap-3   ">
